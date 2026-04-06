@@ -1,6 +1,15 @@
 import cv2
 import mediapipe as mp
 
+def is_finger_open(landmark, tip, pip):
+    tip_y = landmark[tip].y
+    pip_y = landmark[pip].y
+
+    if tip_y < pip_y:
+        return True
+    else:
+        return False
+
 cap = cv2.VideoCapture(0)#웹캠 연결
 
 mp_hands = mp.solutions.hands
@@ -19,17 +28,28 @@ while True:
         for hand_landmarks in results.multi_hand_landmarks:
             mp_drawing.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)# mp_drawing = 미술 도구 상자, .draw_landmarks = 뼈대 그리는 친구
                                  # 어디에,무엇을,어떻게 이을까 핸드 커넥션은 점들끼리를 이어달라는 것임   
-            #print(hand_landmarks.landmark[8])
-            #print(f"검지 끝 y: {hand_landmarks.landmark[8].y:.2f} | 검지 뿌리 y: {hand_landmarks.landmark[6].y:.2f}")
-            #검지 끝과 뿌리의 y좌표를 비교하여 손가락이 펴졌는지 구부러졌는지 판단을 함 아주 유용 보기 간편하게 만든것임
-            #검지 접히고 펴짐 확인하려고 사용한 코드 
-            f_tip_y = hand_landmarks.landmark[8].y
-            f_pip_y = hand_landmarks.landmark[6].y
-
-            if f_tip_y < f_pip_y:
-                print("펴짐")
+                                 
+            if is_finger_open(hand_landmarks.landmark,4,2):
+                print("엄지 펴짐")
             else:
-                print("접힘")
+                print("엄지 접힘")
+            if is_finger_open(hand_landmarks.landmark,8,6):
+                print("검지 펴짐")
+            else:
+                print("검지 접힘")
+            if is_finger_open(hand_landmarks.landmark,12,10):
+                print("중지 펴짐")
+            else:
+                print("중지 접힘")
+            if is_finger_open(hand_landmarks.landmark,16,14):
+                print("약지 펴짐")
+            else:
+                print("약지 접힘")
+            if is_finger_open(hand_landmarks.landmark,20,18):
+                print("소지 펴짐")
+            else:
+                print("소지 접힘")    
+            
     cv2.imshow("Hand Image", img)
     if cv2.waitKey(1) == ord('p'):
         break
