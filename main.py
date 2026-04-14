@@ -49,6 +49,12 @@ while True:
                 print("소지 펴짐")
             else:
                 print("소지 접힘")    
+
+            if is_finger_open(hand_landmarks.landmark, 8, 6) and \
+                not is_finger_open(hand_landmarks.landmark, 12, 10) and \
+                not is_finger_open(hand_landmarks.landmark, 16, 14) and \
+                not is_finger_open(hand_landmarks.landmark, 20, 18):
+                    print("마우스 이동")
             
     cv2.imshow("Hand Image", img)
     if cv2.waitKey(1) == ord('p'):
