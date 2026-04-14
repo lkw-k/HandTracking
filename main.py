@@ -1,5 +1,7 @@
 import cv2
 import mediapipe as mp
+import pyautogui
+
 
 def is_finger_open(landmark, tip, pip):
     tip_y = landmark[tip].y
