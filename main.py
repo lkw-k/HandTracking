@@ -19,11 +19,18 @@ hands = mp_hands.Hands(max_num_hands=1)
 
 screen_w, screen_h = pyautogui.size() #해상도 자동 조정
 
+prev_x = 0
+prev_y = 0
+smoothing = 0.27 #마우스 움직임을 부드럽게 하기위함
+
 while True:
     success, img = cap.read()
     if not success:
         print("카메라로부터 영상을 가져 올 수 없습니다.")
         break
+
+    img = cv2.flip(img, 1) #화면 좌우 반전
+
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = hands.process(img_rgb) #손을 찾음
 
@@ -57,9 +64,17 @@ while True:
                 not is_finger_open(hand_landmarks.landmark, 12, 10) and \
                 not is_finger_open(hand_landmarks.landmark, 16, 14) and \
                 not is_finger_open(hand_landmarks.landmark, 20, 18):
-                    screen_x = hand_landmarks.landmark[8].x * screen_w #x픽셀
-                    screen_y = hand_landmarks.landmark[8].y * screen_h #y픽셀
-                    pyautogui.moveTo(screen_x,screen_y)
+                    x = hand_landmarks.landmark[8].x * screen_w   #x픽셀/ 좌우반전,부드럽게
+                    y = hand_landmarks.landmark[8].y * screen_h #y픽셀
+
+                    curr_x = prev_x * (1- smoothing) + x* smoothing
+                    curr_y = prev_y * (1- smoothing) + y* smoothing #스무딩 한거임 
+                    
+                    pyautogui.moveTo(curr_x, curr_y) #마우스 움직이는 친구
+
+                    prev_x = curr_x
+                    prev_y = curr_y
+
                     print("마우스 이동")
             
     cv2.imshow("Hand Image", img)
