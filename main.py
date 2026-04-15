@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 import pyautogui
+import math
 
 def is_finger_open(landmark, tip, pip):
     tip_y = landmark[tip].y
@@ -10,6 +11,14 @@ def is_finger_open(landmark, tip, pip):
         return True
     else:
         return False
+
+def get_distance(landmark, p1, p2):
+    x1 = landmark[p1].x 
+    y1 = landmark[p1].y
+    x2 = landmark[p2].x
+    y2 = landmark[p2].y
+    return math.sqrt((x1-x2)**2 + (y1-y2)**2)
+
 
 cap = cv2.VideoCapture(0)#웹캠 연결
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)  # 가로 해상도 낮춤
@@ -24,7 +33,7 @@ screen_w, screen_h = pyautogui.size() #해상도 자동 조정
 
 prev_x = 0
 prev_y = 0
-smoothing = 0.27 #마우스 움직임을 부드럽게 하기위함
+smoothing = 0.23 #마우스 움직임을 부드럽게 하기위함
 
 while True:
     success, img = cap.read()
@@ -80,6 +89,12 @@ while True:
                     prev_y = curr_y
 
                     print("마우스 이동")
+
+            distance = get_distance(hand_landmarks.landmark, 8, 12)
+            if distance < 0.05:
+                pyautogui.click()
+                print("클릭!")
+            
             
     cv2.imshow("Hand Image", img)
     if cv2.waitKey(1) == ord('p'):
