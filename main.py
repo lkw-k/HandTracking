@@ -12,6 +12,9 @@ def is_finger_open(landmark, tip, pip):
         return False
 
 cap = cv2.VideoCapture(0)#웹캠 연결
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)  # 가로 해상도 낮춤
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240) # 세로 해상도 낮춤
+cap.set(cv2.CAP_PROP_FPS, 120) #웹캠 프레임을 원하는 120까지 올림
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -70,6 +73,7 @@ while True:
                     curr_x = prev_x * (1- smoothing) + x* smoothing
                     curr_y = prev_y * (1- smoothing) + y* smoothing #스무딩 한거임 
                     
+
                     pyautogui.moveTo(curr_x, curr_y) #마우스 움직이는 친구
 
                     prev_x = curr_x
