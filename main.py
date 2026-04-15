@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+import pyautogui
 
 def is_finger_open(landmark, tip, pip):
     tip_y = landmark[tip].y
@@ -15,6 +16,8 @@ cap = cv2.VideoCapture(0)#웹캠 연결
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 hands = mp_hands.Hands(max_num_hands=1)
+
+screen_w, screen_h = pyautogui.size() #해상도 자동 조정
 
 while True:
     success, img = cap.read()
@@ -54,6 +57,9 @@ while True:
                 not is_finger_open(hand_landmarks.landmark, 12, 10) and \
                 not is_finger_open(hand_landmarks.landmark, 16, 14) and \
                 not is_finger_open(hand_landmarks.landmark, 20, 18):
+                    screen_x = hand_landmarks.landmark[8].x * screen_w #x픽셀
+                    screen_y = hand_landmarks.landmark[8].y * screen_h #y픽셀
+                    pyautogui.moveTo(screen_x,screen_y)
                     print("마우스 이동")
             
     cv2.imshow("Hand Image", img)
