@@ -96,6 +96,12 @@ while True:
             if distance < 0.05:
                 pyautogui.click()
                 print("클릭!")
+
+            if all([is_finger_open(lm, tip, tip-2) for tip in [4,8,12]]) and \
+               all([not is_finger_open(lm, tip, tip-2) for tip in [16,20]]):
+                pyautogui.rightClick()
+                print("우클릭")
+            
             
             
     cv2.imshow("Hand Image", img)
