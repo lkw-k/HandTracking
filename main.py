@@ -94,12 +94,17 @@ while True:
             elif all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12]]) and \
                 all([not is_finger_open(lm, tip, tip-2) for tip in [16, 20]]):
                 pyautogui.rightClick()
-                print("우클릭!")
+                print("우클릭")
 
             # 검지+중지 끝이 가까우면 → 좌클릭
             elif get_distance(lm, 8, 12) < 0.05:
                 pyautogui.click()
-                print("좌클릭!")
+                print("좌클릭")
+
+            elif all([is_finger_open(lm, tip, tip-2) for tip in [8,12,16,20]]) and \
+                all([not is_finger_open(lm, tip, tip-2) for tip in [4]]):
+                pyautogui.scroll(3)
+                print("스크롤 업")
 
     cv2.imshow("Hand Image", img)
     if cv2.waitKey(1) == ord('p'):
