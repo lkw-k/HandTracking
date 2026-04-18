@@ -74,8 +74,32 @@ while True:
             else:
                 print("소지 접힘")
 
+            # 5손가락 전부 펴짐 → 마우스 고정
+            if all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12, 16, 20]]):
+                print("마우스 고정")
+
+            # 검지+중지+약지+소지 펴짐 (엄지 접힘) → 스크롤 업
+            elif all([is_finger_open(lm, tip, tip-2) for tip in [8, 12, 16, 20]]) and \
+                not is_finger_open(lm, 4, 2):
+                pyautogui.scroll(3)
+                print("스크롤 업")
+
+            # 중지+약지+소지 펴짐 (엄지+검지 접힘) → 스크롤 다운
+            elif all([is_finger_open(lm, tip, tip-2) for tip in [12, 16, 20]]) and \
+                not is_finger_open(lm, 4, 2) and \
+                not is_finger_open(lm, 8, 6):
+                pyautogui.scroll(-3)
+                print("스크롤 다운")
+
+            # 엄지+검지+중지 펴짐 → 우클릭
+            elif all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12]]) and \
+                not is_finger_open(lm, 16, 14) and \
+                not is_finger_open(lm, 20, 18):
+                pyautogui.rightClick()
+                print("우클릭")
+
             # 검지만 펴짐 → 마우스 이동
-            if is_finger_open(lm, 8, 6) and \
+            elif is_finger_open(lm, 8, 6) and \
                 all([not is_finger_open(lm, tip, tip-2) for tip in [12, 16, 20]]):
                     x = lm[8].x * screen_w   #x픽셀/ 좌우반전,부드럽게
                     y = lm[8].y * screen_h #y픽셀
@@ -86,25 +110,10 @@ while True:
                     prev_y = curr_y
                     print("마우스 이동")
 
-            # 5손가락 전부 펴짐 → 마우스 고정
-            elif all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12, 16, 20]]):
-                print("마우스 고정")
-
-            # 엄지+검지+중지 펴짐 → 우클릭
-            elif all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12]]) and \
-                all([not is_finger_open(lm, tip, tip-2) for tip in [16, 20]]):
-                pyautogui.rightClick()
-                print("우클릭")
-
             # 검지+중지 끝이 가까우면 → 좌클릭
             elif get_distance(lm, 8, 12) < 0.05:
                 pyautogui.click()
                 print("좌클릭")
-
-            elif all([is_finger_open(lm, tip, tip-2) for tip in [8,12,16,20]]) and \
-                all([not is_finger_open(lm, tip, tip-2) for tip in [4]]):
-                pyautogui.scroll(3)
-                print("스크롤 업")
 
     cv2.imshow("Hand Image", img)
     if cv2.waitKey(1) == ord('p'):
