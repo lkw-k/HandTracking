@@ -48,6 +48,7 @@ while True:
 
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
+            lm = hand_landmarks.landmark
             mp_drawing.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)# mp_drawing = 미술 도구 상자, .draw_landmarks = 뼈대 그리는 친구
                                  # 어디에,무엇을,어떻게 이을까 핸드 커넥션은 점들끼리를 이어달라는 것임   
                                  
@@ -89,6 +90,9 @@ while True:
                     prev_y = curr_y
 
                     print("마우스 이동")
+
+            elif all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12, 16, 20]]):
+                print("마우스 고정")
 
             distance = get_distance(hand_landmarks.landmark, 8, 12)
             if distance < 0.05:
