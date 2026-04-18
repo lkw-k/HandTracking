@@ -34,6 +34,7 @@ screen_w, screen_h = pyautogui.size() #해상도 자동 조정
 prev_x = 0
 prev_y = 0
 smoothing = 0.23 #마우스 움직임을 부드럽게 하기위함
+is_dragging = False #드래그 상태 변수
 
 while True:
     success, img = cap.read()
@@ -76,6 +77,9 @@ while True:
 
             # 5손가락 전부 펴짐 → 마우스 고정
             if all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12, 16, 20]]):
+                if is_dragging:
+                    pyautogui.mouseUp()
+                    is_dragging = False
                 print("마우스 고정")
 
             # 검지+중지+약지+소지 펴짐 (엄지 접힘) → 스크롤 업
@@ -98,9 +102,28 @@ while True:
                 pyautogui.rightClick()
                 print("우클릭")
 
+            # 주먹 쥐기 → 드래그 시작 후 이동
+            elif all([not is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12, 16, 20]]):
+                x = lm[8].x * screen_w
+                y = lm[8].y * screen_h
+                curr_x = prev_x * (1 - smoothing) + x * smoothing
+                curr_y = prev_y * (1 - smoothing) + y * smoothing #드래그 중에 마우스 움직임을 부드럽게 하기 위한 스무딩
+                if not is_dragging:
+                    pyautogui.mouseDown()
+                    is_dragging = True
+                    print("드래그 시작")
+                pyautogui.moveTo(curr_x, curr_y)
+                prev_x = curr_x
+                prev_y = curr_y
+                print("드래그 중")
+
             # 검지만 펴짐 → 마우스 이동
             elif is_finger_open(lm, 8, 6) and \
                 all([not is_finger_open(lm, tip, tip-2) for tip in [12, 16, 20]]):
+                    if is_dragging:
+                        pyautogui.mouseUp()
+                        is_dragging = False
+                        print("드래그 끝")
                     x = lm[8].x * screen_w   #x픽셀/ 좌우반전,부드럽게
                     y = lm[8].y * screen_h #y픽셀
                     curr_x = prev_x * (1- smoothing) + x* smoothing
@@ -114,6 +137,13 @@ while True:
             elif get_distance(lm, 8, 12) < 0.05:
                 pyautogui.click()
                 print("좌클릭")
+
+    else:
+        # 손이 안보이면 드래그 해제
+        if is_dragging:
+            pyautogui.mouseUp()
+            is_dragging = False
+            print("드래그 끝! (손 없음)")
 
     cv2.imshow("Hand Image", img)
     if cv2.waitKey(1) == ord('p'):
