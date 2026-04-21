@@ -92,14 +92,14 @@ while True:
             # 검지+중지+약지+소지 펴짐 (엄지 접힘) → 스크롤 업
             elif all([is_finger_open(lm, tip, tip-2) for tip in [8, 12, 16, 20]]) and \
                 not is_thumb_open(lm):
-                pyautogui.scroll(3)
+                pyautogui.scroll(30)
                 print("스크롤 업")
 
             # 중지+약지+소지 펴짐 (엄지+검지 접힘) → 스크롤 다운
             elif all([is_finger_open(lm, tip, tip-2) for tip in [12, 16, 20]]) and \
                 not is_thumb_open(lm) and \
                 not is_finger_open(lm, 8, 6):
-                pyautogui.scroll(-3)
+                pyautogui.scroll(-30)
                 print("스크롤 다운")
 
             # 엄지+검지+중지 펴짐 → 우클릭
