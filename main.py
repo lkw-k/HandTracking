@@ -111,6 +111,15 @@ while True:
                 pyautogui.rightClick()
                 print("우클릭")
 
+            # 엄지+검지 펴짐 (총 쏘는 모양) → 더블클릭
+            elif is_thumb_open(lm) and \
+                is_finger_open(lm, 8, 6) and \
+                not is_finger_open(lm, 12, 10) and \
+                not is_finger_open(lm, 16, 14) and \
+                not is_finger_open(lm, 20, 18):
+                pyautogui.doubleClick()
+                print("더블클릭")
+
             # 주먹 쥐기 → 드래그 시작 후 이동
             elif not is_thumb_open(lm) and \
                 all([not is_finger_open(lm, tip, tip-2) for tip in [8, 12, 16, 20]]):
