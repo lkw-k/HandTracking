@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import pyautogui
 import math
+import time
 
 def is_finger_open(landmark, tip, pip):
     tip_y = landmark[tip].y
@@ -41,6 +42,9 @@ prev_x = 0
 prev_y = 0
 smoothing = 0.23 #마우스 움직임을 부드럽게 하기위함
 is_dragging = False #드래그 상태 변수
+
+last_click_time = 0
+click_cooldown = 0.5  # 0.5초의 클릭 쿨다운
 
 while True:
     success, img = cap.read()
@@ -108,8 +112,10 @@ while True:
                 is_finger_open(lm, 12, 10) and \
                 not is_finger_open(lm, 16, 14) and \
                 not is_finger_open(lm, 20, 18):
-                pyautogui.rightClick()
-                print("우클릭")
+                if time.time() - last_click_time > click_cooldown:
+                    pyautogui.rightClick()
+                    last_click_time = time.time()
+                    print("우클릭")
 
             # 엄지+검지 펴짐 (총 쏘는 모양) → 더블클릭
             elif is_thumb_open(lm) and \
@@ -117,8 +123,10 @@ while True:
                 not is_finger_open(lm, 12, 10) and \
                 not is_finger_open(lm, 16, 14) and \
                 not is_finger_open(lm, 20, 18):
-                pyautogui.doubleClick()
-                print("더블클릭")
+                if time.time() - last_click_time > click_cooldown:
+                    pyautogui.doubleClick()
+                    last_click_time = time.time()
+                    print("더블클릭")
 
             # 주먹 쥐기 → 드래그 시작 후 이동
             elif not is_thumb_open(lm) and \
@@ -156,8 +164,10 @@ while True:
             elif is_finger_open(lm, 8, 6) and \
                 is_finger_open(lm, 12, 10) and \
                 get_distance(lm, 8, 12) < 0.05:
-                pyautogui.click()
-                print("좌클릭")
+                if time.time() - last_click_time > click_cooldown:
+                    pyautogui.click()
+                    last_click_time = time.time()
+                    print("좌클릭")
 
     else:
         # 손이 안보이면 드래그 해제
