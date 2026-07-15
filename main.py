@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import pyautogui
 import math
+import time
 
 def is_finger_open(landmark, tip, pip):
     tip_y = landmark[tip].y
@@ -11,6 +12,12 @@ def is_finger_open(landmark, tip, pip):
         return True
     else:
         return False
+
+# 엄지 전용 판별 함수 (x좌표로 판별)
+def is_thumb_open(landmark):
+    # 화면 좌우반전된 상태에서 오른손 기준
+    # 엄지 끝(4)이 엄지 관절(3)보다 왼쪽에 있으면 펴진 것
+    return landmark[4].x < landmark[3].x
 
 def get_distance(landmark, p1, p2):
     x1 = landmark[p1].x 
@@ -36,6 +43,9 @@ prev_y = 0
 smoothing = 0.23 #마우스 움직임을 부드럽게 하기위함
 is_dragging = False #드래그 상태 변수
 
+last_click_time = 0
+click_cooldown = 0.5  # 0.5초의 클릭 쿨다운
+
 while True:
     success, img = cap.read()
     if not success:
@@ -54,7 +64,7 @@ while True:
                                  # 어디에,무엇을,어떻게 이을까 핸드 커넥션은 점들끼리를 이어달라는 것임   
 
             # 각 손가락 상태 출력
-            if is_finger_open(lm, 4, 2):
+            if is_thumb_open(lm):
                 print("엄지 펴짐")
             else:
                 print("엄지 접힘")
@@ -76,7 +86,8 @@ while True:
                 print("소지 접힘")
 
             # 5손가락 전부 펴짐 → 마우스 고정
-            if all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12, 16, 20]]):
+            if is_thumb_open(lm) and \
+                all([is_finger_open(lm, tip, tip-2) for tip in [8, 12, 16, 20]]):
                 if is_dragging:
                     pyautogui.mouseUp()
                     is_dragging = False
@@ -84,26 +95,42 @@ while True:
 
             # 검지+중지+약지+소지 펴짐 (엄지 접힘) → 스크롤 업
             elif all([is_finger_open(lm, tip, tip-2) for tip in [8, 12, 16, 20]]) and \
-                not is_finger_open(lm, 4, 2):
-                pyautogui.scroll(3)
+                not is_thumb_open(lm):
+                pyautogui.scroll(30)
                 print("스크롤 업")
 
             # 중지+약지+소지 펴짐 (엄지+검지 접힘) → 스크롤 다운
             elif all([is_finger_open(lm, tip, tip-2) for tip in [12, 16, 20]]) and \
-                not is_finger_open(lm, 4, 2) and \
+                not is_thumb_open(lm) and \
                 not is_finger_open(lm, 8, 6):
-                pyautogui.scroll(-3)
+                pyautogui.scroll(-30)
                 print("스크롤 다운")
 
             # 엄지+검지+중지 펴짐 → 우클릭
-            elif all([is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12]]) and \
+            elif is_thumb_open(lm) and \
+                is_finger_open(lm, 8, 6) and \
+                is_finger_open(lm, 12, 10) and \
                 not is_finger_open(lm, 16, 14) and \
                 not is_finger_open(lm, 20, 18):
-                pyautogui.rightClick()
-                print("우클릭")
+                if time.time() - last_click_time > click_cooldown:
+                    pyautogui.rightClick()
+                    last_click_time = time.time()
+                    print("우클릭")
+
+            # 엄지+검지 펴짐 (총 쏘는 모양) → 더블클릭
+            elif is_thumb_open(lm) and \
+                is_finger_open(lm, 8, 6) and \
+                not is_finger_open(lm, 12, 10) and \
+                not is_finger_open(lm, 16, 14) and \
+                not is_finger_open(lm, 20, 18):
+                if time.time() - last_click_time > click_cooldown:
+                    pyautogui.doubleClick()
+                    last_click_time = time.time()
+                    print("더블클릭")
 
             # 주먹 쥐기 → 드래그 시작 후 이동
-            elif all([not is_finger_open(lm, tip, tip-2) for tip in [4, 8, 12, 16, 20]]):
+            elif not is_thumb_open(lm) and \
+                all([not is_finger_open(lm, tip, tip-2) for tip in [8, 12, 16, 20]]):
                 x = lm[8].x * screen_w
                 y = lm[8].y * screen_h
                 curr_x = prev_x * (1 - smoothing) + x * smoothing
@@ -133,10 +160,14 @@ while True:
                     prev_y = curr_y
                     print("마우스 이동")
 
-            # 검지+중지 끝이 가까우면 → 좌클릭
-            elif get_distance(lm, 8, 12) < 0.05:
-                pyautogui.click()
-                print("좌클릭")
+            # 검지+중지 끝이 가까우면 → 좌클릭 (둘 다 펴진 상태에서만)
+            elif is_finger_open(lm, 8, 6) and \
+                is_finger_open(lm, 12, 10) and \
+                get_distance(lm, 8, 12) < 0.05:
+                if time.time() - last_click_time > click_cooldown:
+                    pyautogui.click()
+                    last_click_time = time.time()
+                    print("좌클릭")
 
     else:
         # 손이 안보이면 드래그 해제
@@ -146,7 +177,7 @@ while True:
             print("드래그 끝! (손 없음)")
 
     cv2.imshow("Hand Image", img)
-    if cv2.waitKey(1) == ord('p'):
+    if cv2.waitKey(1) == ord('p') or ord('P') or ord('ㅔ'):
         break
 
 cap.release() #웹캠 해제
