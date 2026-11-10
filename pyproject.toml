@@ -4,6 +4,6 @@ version = "0.1.0"
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "mediapipe==0.10.9",
-    "opencv-python",
+    "opencv-contrib-python",
     "pyautogui>=0.9.54",
 ]

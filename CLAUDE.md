@@ -64,7 +64,7 @@ main.py - 단일 진입점
 
 ## 의존성 관리
 - mediapipe: 0.10.9 (고정) - 버전 변경 금지
-- opencv-python: 최신 안정 버전
+- opencv-contrib-python: 최신 안정 버전 (mediapipe 의존성과 통일 — opencv-python 추가 금지, 두 패키지가 cv2를 덮어써 충돌)
 - pyautogui: 0.9.54 이상
 
 `pyproject.toml`과 `uv.lock` 모두 동기화 필수.

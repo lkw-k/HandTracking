@@ -36,6 +36,13 @@ uv run main.py   # 실행
 
 uv 설치: macOS/Linux `curl -LsSf https://astral.sh/uv/install.sh | sh`, Windows `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
 
+> **업데이트 후 `module 'cv2' has no attribute ...` 에러가 나면**
+> 예전 버전은 `opencv-python`과 `opencv-contrib-python`이 함께 설치돼 있었는데, 업데이트로 하나가 제거되면서 공유 파일이 같이 지워진 것입니다. 아래 명령으로 복구하세요.
+> ```bash
+> uv sync --reinstall-package opencv-contrib-python
+> ```
+> (pip 사용 시: `pip uninstall -y opencv-python opencv-contrib-python && pip install opencv-contrib-python`)
+
 ### pip로 설치하는 경우
 
 반드시 **Python 3.11**로 가상환경을 만들어야 합니다.
@@ -47,13 +54,13 @@ source .venv/bin/activate
 # Windows
 .venv\Scripts\activate
 
-pip install "mediapipe==0.10.9" opencv-python "pyautogui>=0.9.54"
+pip install "mediapipe==0.10.9" opencv-contrib-python "pyautogui>=0.9.54"
 python main.py
 ```
 
 ### 주요 라이브러리
 - **mediapipe (0.10.9)**: 손 인식 및 랜드마크 감지
-- **opencv-python**: 웹캠 영상 처리 및 시각화
+- **opencv-contrib-python**: 웹캠 영상 처리 및 시각화 (mediapipe가 요구하는 패키지와 통일)
 - **pyautogui**: 마우스/키보드 제어
 
 ## OS별 필수 설정
@@ -95,7 +102,6 @@ python main.py
 - 충분한 조명이 필요합니다
 - 손이 카메라 범위를 벗어나면 드래그 자동 해제
 - 웹캠이 여러 개면 첫 번째 장치(0번)를 사용합니다
-- `mediapipe`가 `opencv-contrib-python`도 함께 설치하므로 OpenCV 패키지가 2개 설치되지만 정상입니다
 
 ## 개발 계획
 
