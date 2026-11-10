@@ -19,7 +19,8 @@
 
 - **Python 3.11** (정확히 3.11 — `mediapipe 0.10.9`가 3.12 이상을 지원하지 않음)
 - 웹캠
-- 지원 OS: Windows (x64), macOS (Intel / Apple Silicon), Linux (x64 / ARM64, **X11 데스크톱**)
+- 지원 OS: Windows (x64), macOS (Apple Silicon: **13 이상**, Intel: **14 이상**), Linux (x64 / ARM64, **X11 데스크톱**)
+  - macOS 버전이 이보다 낮으면 OpenCV 설치 파일이 없어 설치가 실패합니다
   - Windows ARM, Linux Wayland 환경은 지원되지 않습니다
 
 ## 설치 및 실행 (권장: uv)
@@ -77,6 +78,7 @@ python main.py
 ### Linux
 - X11 세션에서 실행해야 합니다 (Wayland에서는 pyautogui가 마우스를 제어하지 못함)
 - 웹캠 권한: 사용자가 `video` 그룹에 속해야 할 수 있음 (`sudo usermod -aG video $USER`)
+- 시스템 Python을 쓰는 경우 tkinter가 필요합니다. 없으면 시작 즉시 `You must install tkinter` 메시지와 함께 종료됩니다 (`sudo apt install python3-tk`). uv는 시스템에 Python 3.11이 있으면 그것을 쓰므로 uv 사용자도 해당될 수 있습니다 (`uv sync --managed-python`으로 uv 전용 Python을 쓰면 tkinter 포함)
 
 ## 사용 방법
 
