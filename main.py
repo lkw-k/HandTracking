@@ -177,7 +177,7 @@ while True:
             print("드래그 끝! (손 없음)")
 
     cv2.imshow("Hand Image", img)
-    if cv2.waitKey(1) == ord('p') or ord('P') or ord('ㅔ'):
+    if cv2.waitKey(1) in (ord('p'), ord('P'), ord('ㅔ')):
         break
 
 cap.release() #웹캠 해제

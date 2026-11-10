@@ -17,20 +17,38 @@
 
 ## 요구 사항
 
-- Python 3.11 이상
+- **Python 3.11** (정확히 3.11 — `mediapipe 0.10.9`가 3.12 이상을 지원하지 않음)
 - 웹캠
-- Windows/Mac/Linux
+- 지원 OS: Windows (x64), macOS (Intel / Apple Silicon), Linux (x64 / ARM64, **X11 데스크톱**)
+  - Windows ARM, Linux Wayland 환경은 지원되지 않습니다
 
-## 설치
+## 설치 및 실행 (권장: uv)
+
+[uv](https://docs.astral.sh/uv/)를 쓰면 Python 3.11 설치부터 의존성까지 자동으로 맞춰집니다.
 
 ```bash
-# Python 버전 확인
-python --version
+git clone https://github.com/lkw-k/HandTracking.git
+cd HandTracking
 
-# 의존성 설치
-pip install -r requirements.txt
-# 또는 uv 사용
-uv sync
+uv sync          # Python 3.11 + 의존성 자동 설치 (uv.lock 기준)
+uv run main.py   # 실행
+```
+
+uv 설치: macOS/Linux `curl -LsSf https://astral.sh/uv/install.sh | sh`, Windows `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
+
+### pip로 설치하는 경우
+
+반드시 **Python 3.11**로 가상환경을 만들어야 합니다.
+
+```bash
+python3.11 -m venv .venv
+# macOS/Linux
+source .venv/bin/activate
+# Windows
+.venv\Scripts\activate
+
+pip install "mediapipe==0.10.9" opencv-python "pyautogui>=0.9.54"
+python main.py
 ```
 
 ### 주요 라이브러리
@@ -38,16 +56,32 @@ uv sync
 - **opencv-python**: 웹캠 영상 처리 및 시각화
 - **pyautogui**: 마우스/키보드 제어
 
+## OS별 필수 설정
+
+### macOS
+처음 실행하면 권한 요청이 뜹니다. 거부했거나 동작하지 않으면
+**시스템 설정 → 개인정보 보호 및 보안**에서 실행한 터미널 앱(Terminal, iTerm, VS Code 등)에 아래 권한을 허용한 뒤 터미널을 재시작하세요.
+- **카메라**: 없으면 웹캠 창이 뜨지 않음
+- **손쉬운 사용**: 없으면 마우스가 움직이지 않음
+
+### Windows
+- 설정 → 개인정보 → 카메라에서 데스크톱 앱의 카메라 접근 허용
+
+### Linux
+- X11 세션에서 실행해야 합니다 (Wayland에서는 pyautogui가 마우스를 제어하지 못함)
+- 웹캠 권한: 사용자가 `video` 그룹에 속해야 할 수 있음 (`sudo usermod -aG video $USER`)
+
 ## 사용 방법
 
-```bash
-python main.py
-```
-
-1. 웹캠 창이 열립니다
+1. 웹캠 창("Hand Image")이 열립니다
 2. 손을 카메라에 보여줍니다
 3. 손가락 제스처로 마우스를 제어합니다
-4. `p` 키를 눌러 종료합니다
+
+### 종료 방법
+- 웹캠 창을 클릭해 활성화한 뒤 **`p`** 키 (한글 입력 상태면 영문으로 전환 후 입력)
+- 또는 실행한 터미널에서 **`Ctrl + C`**
+- 비상시: 마우스를 **화면 왼쪽 위 모서리**로 이동하면 pyautogui 안전장치가 프로그램을 중단합니다
+- 드래그 중 강제 종료해 마우스 버튼이 눌린 상태로 남으면 마우스를 한 번 클릭하세요
 
 ## 주요 파라미터
 
@@ -60,6 +94,8 @@ python main.py
 - 한 손만 인식 (최대 1개 손)
 - 충분한 조명이 필요합니다
 - 손이 카메라 범위를 벗어나면 드래그 자동 해제
+- 웹캠이 여러 개면 첫 번째 장치(0번)를 사용합니다
+- `mediapipe`가 `opencv-contrib-python`도 함께 설치하므로 OpenCV 패키지가 2개 설치되지만 정상입니다
 
 ## 개발 계획
 
